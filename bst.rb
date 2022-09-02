@@ -11,7 +11,7 @@ class Tree
     attr_accessor :root
 
     def initialize(arr)
-        arr = arr.sort.uniq
+        @arr = arr.sort.uniq
         last = arr.size - 1
         @root = build_tree(arr, 0, last)
     end 
@@ -97,7 +97,6 @@ class Tree
         end
         level_order(q.shift, q)
     end
-
 #dfs traversal : 3ways
 #1) Preorder <root><left><right> 
 #2) Inorder <left><root><right> 
@@ -131,6 +130,40 @@ class Tree
         [left,right].max + 1
     end
 
+    def depth(node, parent=@root, current_depth = 0)
+        return current_depth if node == parent 
+        if parent.left!=node
+            depth(node, parent.right, current_depth+1)
+        elsif parent.right!=node
+            depth(node, parent.left, current_depth+1)
+        end
+    end
+
+    def balanced?(node=@root)
+        left = height(node.left)
+        right = height(node.right)
+        if (left-right).abs > 1
+            puts "Unbalanced"
+            return false
+        else
+            puts "Balanced"
+            return true
+        end
+    end
+
+    def inorder_arr(node=@root, arr=[])
+        return arr if node.nil?
+        inorder_arr(node.left, arr)
+        arr.push(node.value)
+        inorder_arr(node.right, arr)
+    end
+
+    def rebalance
+        arr = inorder_arr
+        last_index = (arr.size) -1
+        @root = build_tree(arr, 0, last_index)
+    end
+
     def pretty_print(node = @root, prefix = '', is_left = true)
         pretty_print(node.right, "#{prefix}#{is_left ? '│   ' : '    '}", false) if node.right
         puts "#{prefix}#{is_left ? '└── ' : '┌── '}#{node.value}"
@@ -145,8 +178,11 @@ tree = Tree.new(arr)
 #     4            2
 #  2     6         1
 #1   3 5   7       0
-puts tree.height(tree.root.right.right)
 
+tree.insert(8)
+tree.insert(9)
+tree.insert(10)
 
-
+tree.rebalance
+tree.pretty_print
 
